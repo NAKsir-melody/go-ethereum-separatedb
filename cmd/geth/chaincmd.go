@@ -337,7 +337,7 @@ func importPreimages(ctx *cli.Context) error {
 	stack := makeFullNode(ctx)
 	defer stack.Close()
 
-	db := utils.MakeChainDatabase(ctx, stack)
+	db, _ := utils.MakeChainDatabase(ctx, stack)
 	start := time.Now()
 
 	if err := utils.ImportPreimages(db, ctx.Args().First()); err != nil {
@@ -355,7 +355,7 @@ func exportPreimages(ctx *cli.Context) error {
 	stack := makeFullNode(ctx)
 	defer stack.Close()
 
-	db := utils.MakeChainDatabase(ctx, stack)
+	db, _ := utils.MakeChainDatabase(ctx, stack)
 	start := time.Now()
 
 	if err := utils.ExportPreimages(db, ctx.Args().First()); err != nil {

@@ -124,6 +124,10 @@ func New(ctx *node.ServiceContext, config *Config) (*Ethereum, error) {
 	if err != nil {
 		return nil, err
 	}
+	stateDb, err := ctx.OpenDatabase("statedata", config.DatabaseCache, config.DatabaseHandles, "eth/db/statedata/")
+	if err != nil {
+		return nil, err
+	}
 	chainConfig, genesisHash, genesisErr := core.SetupGenesisBlockWithOverride(chainDb, config.Genesis, config.ConstantinopleOverride)
 	if _, ok := genesisErr.(*params.ConfigCompatError); genesisErr != nil && !ok {
 		return nil, genesisErr
@@ -169,11 +173,12 @@ func New(ctx *node.ServiceContext, config *Config) (*Ethereum, error) {
 			TrieCleanLimit:      config.TrieCleanCache,
 			TrieCleanNoPrefetch: config.NoPrefetch,
 			TrieDirtyLimit:      config.TrieDirtyCache,
-			TrieDirtyDisabled:   config.NoPruning,
+			//TrieDirtyDisabled:   config.NoPruning,
+			TrieDirtyDisabled:   true,
 			TrieTimeLimit:       config.TrieTimeout,
 		}
 	)
-	eth.blockchain, err = core.NewBlockChain(chainDb, cacheConfig, chainConfig, eth.engine, vmConfig, eth.shouldPreserve)
+	eth.blockchain, err = core.NewBlockChain(chainDb, stateDb, cacheConfig, chainConfig, eth.engine, vmConfig, eth.shouldPreserve)
 	if err != nil {
 		return nil, err
 	}

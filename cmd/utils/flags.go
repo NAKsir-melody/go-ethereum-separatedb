@@ -1548,7 +1548,7 @@ func SplitTagsFlag(tagsFlag string) map[string]string {
 }
 
 // MakeChainDatabase open an LevelDB using the flags passed to the client and will hard crash if it fails.
-func MakeChainDatabase(ctx *cli.Context, stack *node.Node) ethdb.Database {
+func MakeChainDatabase(ctx *cli.Context, stack *node.Node) (ethdb.Database, ethdb.Database) {
 	var (
 		cache   = ctx.GlobalInt(CacheFlag.Name) * ctx.GlobalInt(CacheDatabaseFlag.Name) / 100
 		handles = makeDatabaseHandles()
@@ -1561,7 +1561,16 @@ func MakeChainDatabase(ctx *cli.Context, stack *node.Node) ethdb.Database {
 	if err != nil {
 		Fatalf("Could not open database: %v", err)
 	}
-	return chainDb
+
+	name = "statedata"
+	if ctx.GlobalString(SyncModeFlag.Name) == "light" {
+		name = "lightchaindata"
+	}
+	stateDb, err := stack.OpenDatabase(name, cache, handles, "")
+	if err != nil {
+		Fatalf("Could not open database: %v", err)
+	}
+	return chainDb, stateDb
 }
 
 func MakeGenesis(ctx *cli.Context) *core.Genesis {
@@ -1582,7 +1591,7 @@ func MakeGenesis(ctx *cli.Context) *core.Genesis {
 // MakeChain creates a chain manager from set command line flags.
 func MakeChain(ctx *cli.Context, stack *node.Node) (chain *core.BlockChain, chainDb ethdb.Database) {
 	var err error
-	chainDb = MakeChainDatabase(ctx, stack)
+	chainDb, stateDb := MakeChainDatabase(ctx, stack)
 	config, _, err := core.SetupGenesisBlock(chainDb, MakeGenesis(ctx))
 	if err != nil {
 		Fatalf("%v", err)
@@ -1620,7 +1629,7 @@ func MakeChain(ctx *cli.Context, stack *node.Node) (chain *core.BlockChain, chai
 		cache.TrieDirtyLimit = ctx.GlobalInt(CacheFlag.Name) * ctx.GlobalInt(CacheGCFlag.Name) / 100
 	}
 	vmcfg := vm.Config{EnablePreimageRecording: ctx.GlobalBool(VMEnableDebugFlag.Name)}
-	chain, err = core.NewBlockChain(chainDb, cache, config, engine, vmcfg, nil)
+	chain, err = core.NewBlockChain(chainDb, stateDb, cache, config, engine, vmcfg, nil)
 	if err != nil {
 		Fatalf("Can't create BlockChain: %v", err)
 	}
