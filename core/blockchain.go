@@ -254,6 +254,7 @@ func (bc *BlockChain) loadLastState() error {
 		return bc.Reset()
 	}
 	// Make sure the state associated with the block is available
+/*
 	if _, err := state.New(currentBlock.Root(), bc.stateCache); err != nil {
 		// Dangling block without a state associated, init from scratch
 		log.Warn("Head state missing, repairing chain", "number", currentBlock.Number(), "hash", currentBlock.Hash())
@@ -261,6 +262,7 @@ func (bc *BlockChain) loadLastState() error {
 			return err
 		}
 	}
+*/
 	// Everything seems to be fine, set as the head block
 	bc.currentBlock.Store(currentBlock)
 
