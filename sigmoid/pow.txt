@@ -1,0 +1,25 @@
+./build/bin/geth --datadir node_pow1 init sigmoid_pow.json
+
+./build/bin/geth --identity "cryptonian" --port 30303 --networkid 33 --nodiscover --maxpeers 0 --datadir node_pow1 --rpc --rpcport 8080 --rpcapi "db,eth,net,web3,personal,ws" --rpcaddr "127.0.0.1" --rpccorsdomain "*" console
+
+
+./build/bin/geth attach ipc://home/sigmoid/WORK/go-ethereum-separate/node_pow1/geth.ipc
+
+personal.newAccount("base")
+eth.getBalance(eth.accounts[0])
+0x50b1d69dd3d825f21d057efee56d3e9341a343e6
+miner.start()
+miner.stop()
+
+web3.eth.defaultAccount = eth.accounts[0]
+web3.personal.unlockAccount(eth.accounts[0], "base", 0)
+
+personal.newAccount("guest1")
+
+eth.getBalance(eth.accounts[0])
+eth.getBalance(eth.accounts[1])
+
+eth.sendTransaction({from:eth.coinbase, to:eth.accounts[1], value: web3.toWei(5,"ether")})
+
+miner.start()
+miner.stop()

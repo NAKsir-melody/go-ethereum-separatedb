@@ -1,0 +1,25 @@
+./geth --datadir node1/ account new
+4f8868e5233469c694d59f0829d1caa5225d475d
+./geth --datadir node2/ account new
+f11b2d21e80181cbf93bd47f33a515e652186025
+
+puppeth
+
+./geth --datadir node1/ init sigmoid.json
+./geth --datadir node2/ init sigmoid.json
+
+
+./bootnode -genkey boot.key
+
+./bootnode -nodekey boot.key -verbosity 9 -addr :30310 
+
+./geth --datadir node1/ --syncmode 'full' --port 30311 --rpc --rpcport 8501 --rpcapi 'db,eth,net,web3,personal,ws' --rpcaddr "127.0.0.1" --bootnodes 'enode://1b12f0f6492cd2730a24bd52e2737d0f40d3a048978eab7a541dd1842cdd226b1476ef40b53b7c60f59ca6c7c397770c9562235099990a40a0d26f34a4fe91c9@127.0.0.1:30310' --networkid 10804 --gasprice '1' -unlock '0x4f8868e5233469c694d59f0829d1caa5225d475d' --password password.txt --mine --rpccorsdomain "*" console --ethstats node1:Hello@localhost:3000 
+
+./geth --datadir node2/ --syncmode 'full' --port 30312 --rpc --rpcport 8502 --rpcapi "db,eth,net,web3,personal,ws" --rpcaddr "127.0.0.1" --bootnodes 'enode://1b12f0f6492cd2730a24bd52e2737d0f40d3a048978eab7a541dd1842cdd226b1476ef40b53b7c60f59ca6c7c397770c9562235099990a40a0d26f34a4fe91c9@127.0.0.1:30310' --networkid 10804 --gasprice '0' -unlock '0xf11b2d21e80181cbf93bd47f33a515e652186025' --password password.txt --mine --rpccorsdomain "*" console --ethstats node2:Hello@localhost:3000 
+
+
+./geth attach node1/geth.ipc
+./geth --port 30303 --networkid 33 --nodiscover --maxpeers 0 --datadir ./pownode --rpc --rpcport 8080 --rpcapi "db,eth,net,web3,personal,ws" --rpcaddr "127.0.0.1" --rpccorsdomain "*" console
+
+
+personal.newAccount("test")
